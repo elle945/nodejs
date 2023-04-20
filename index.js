@@ -1,64 +1,29 @@
-const http = require('http')
-let count = 0
+const express = require('express')
+let useragent = require('express-useragent')
 
-const app = (req, res) => {
-    if (req.url === '/') {
-        res.write('Hejsan svejsan')
-        res.end()
-    } else if (req.url === '/foo') {
-        res.write('bar')
-        res.end()
-    } else if (req.url === '/baz') {
-        res.write('qux')
-        res.end()
-    } else if (req.url === '/count') {
-        if (req.method === 'GET') {
-            res.write(`${count}`)
-            res.end()
-        } else {
-            res.statusCode = 405
-            res.end()
-        }
-    } else if (req.url === '/increment')
-        if (req.method === 'POST') {
-            count++
-            res.end()
-        } else {
-            res.statusCode = 405
-            res.end()
-        }
-    else if (req.url.startsWith('/add/')) {
-        if (req.method === 'POST') {
-            const urlParam = parseInt(req.url.split('/').pop())
-            count += urlParam
-            res.end()
-        } else {
-            res.statusCode = 405
-            res.end()
-        }
-    } else {
-        res.statusCode = 404
-        res.end()
-    }
-}
-const server = http.createServer((req, res) => {
-    if (req.url.startsWith('/redirect')) {
-        res.writeHead(301, { Location: 'http://localhost:3000/' })
-        res.end()
-    } else {
-        app(req, res)
-    }
+userAgents = []
+values = []
+
+const app = express()
+app.use(useragent.express())
+app.get('/', (req, res) => {
+    res.send(req.useragent)
+})
+app.get('/log', (req, res) => {
+    const userAgent = req.useragent.source
+    const data = { userAgent: userAgent, time: new Date().toISOString() }
+    values.push(data)
+    res.send(values)
+})
+app.delete('/log', (req, res) => {
+    if (req.method === 'DELETE') {
+        values = []
+        res.send(values)
+    } else res.status(405)
 })
 
-const redirection = http.createServer((req, res) => {
-    res.writeHead(302, { Location: 'http://localhost:3000/' })
-    res.end()
+app.listen(8080, () => {
+    console.log('server on port 8080')
 })
 
-redirection.listen(8080, () => {
-    console.log('Server started on 8080')
-})
-
-server.listen(3000, () => {
-    console.log('Server started on 3000')
-})
+//HELP WITH GET REQUEST

@@ -6,6 +6,10 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
+    "dependencies": {
+        "express": "*",
+        "express-useragent": "^1.0.15"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/elle945/nodejs.git"
